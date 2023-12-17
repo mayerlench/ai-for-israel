@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Defend with AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"
+        integrity="sha384-mZLF4UVrpi/QTWPA7BjNPEnkIfRFn4ZEO3Qt/HFklTJBj/gBOV8G3HcKn4NfQblz"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HE9PB7G54S"></script>
+    <link href="https://fonts.cdnfonts.com/css/inter" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/source-sans-pro" rel="stylesheet">
+                
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-HE9PB7G54S');
+    </script>
+    <style>
+        html * {
+            font-family: Arial !important;
+        }
+
+        .button.is-primary,
+        .input.is-primary {
+            width: 100%;
+            /* Full width for both button and input */
+            height: 50px;
+            /* Equal height for button and input */
+            padding: 10px 15px;
+            /* Padding for button and input */
+            font-size: 1.2rem;
+            /* Font size for button and input */
+            box-sizing: border-box;
+        }
+
+        .button.is-primary {
+            background-color: #0038b8;
+            border-color: #0038b8;
+        }
+
+        .button.is-primary:hover {
+            background-color: #0056cc;
+            /* Slightly lighter shade for hover */
+            border-color: #0056cc;
+        }
+
+        .input.is-primary:focus,
+        .input.is-primary.is-focused {
+            border-color: #0038b8;
+            box-shadow: 0 0 0.625rem rgba(0, 56, 184, 0.5);
+        }
+
+        /* Adjustments for smaller screens */
+        @media screen and (max-width: 768px) {
+
+            .button.is-primary,
+            .input.is-primary {
+                font-size: 1.0rem;
+                /* Smaller font size on mobile */
+                height: 40px;
+                /* Smaller height on mobile */
+                padding: 8px 10px;
+                /* Smaller padding on mobile */
+            }
+        }
+
+
+        .content {
+            -webkit-touch-callout: none;
+            /* iOS Safari */
+            -webkit-user-select: none;
+            /* Safari */
+            -khtml-user-select: none;
+            /* Konqueror HTML */
+            -moz-user-select: none;
+            /* Old versions of Firefox */
+            -ms-user-select: none;
+            /* Internet Explorer/Edge */
+            user-select: none;
+            /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="app" class="container">
+        <div class="mt-5 text-5xl font-bold font-[sans-pro]">
+            Argument
+        </div>
+        <div>
+            Harness the power of AI to defend Israel online
+            with powerful replies
+        </div>
+        <div>
+            Enter an anti-Israel argument below
+        </div>
+        <div class="input-group">
+            <input class="input is-primary is-large is-focused" id="txtPrompt" type="text" v-model="argument"
+                placeholder="Enter your argument">
+
+
+        </div>
+        <br />
+        <button class="button is-primary is-fullwidth is-large" :disabled="isLoading || isStreaming"
+            @click="socketResponse">Generate Reponse</button>
+        <!-- <div v-if="isLoading" class="busy-indicator"><img src="https://uploads.superbot.works/site-static/files/shares/supbot.gif"/></div> -->
+        <progress v-if="isLoading" class="progress is-large is-info" max="100">60%</progress>
+        <!-- <div v-if="isLoading" class="busy-indicator"><img src="https://mir-s3-cdn-cf.behance.net/project_modules/disp/585d0331234507.564a1d239ac5e.gif"/></div> -->
+        <!-- <div v-if="isLoading" class="busy-indicator"><img src="supbot.gif"/></div> -->
+
+        <br />
+        <br />
+        <div v-if='!success' class="notification is-warning">
+
+            {{error}}
+        </div>
+        <div ref='resultDiv'>
+            <div v-if="response" class="response">
+
+
+
+                <div v-if="!isLoading" class="card">
+                    <div class="card-content">
+                        <p class="title">
+                            The anti-israeli argument you provided:
+                        </p>
+                        <p class="content">{{ _argument }}</p>
+                        <br />
+                        <p class="title">
+                            How you should answer:
+                        </p>
+                        <div class="content">
+                            {{ message}}
+                            <br />
+
+                        </div>
+                        <footer class="card-footer" v-if="!isStreaming">
+                            <a href="#" @click="copyToClipboard" class="card-footer-item">Copy</a>
+                        </footer>
+                    </div>
+                </div>
+
+                <div v-if="response.metadata.link && !isLoading" class="card">
+                    <div class="card-content">
+                        <div class="content">
+                            Use the following link to support your argument:
+                            <br />
+                            <a href="{{ response.metadata.link }}" target="_blank" class="link">{{
+                                response.metadata.link }}</a>
+                        </div>
+                    </div>
+                </div>
+
+
+                <a v-if="response.metadata.link && !isLoading" href="{{ response.metadata.link  }}" target="_blank"
+                    class="link">{{ response.metadata.link }}</a>
+            </div>
+        </div>
+
+
+    </div>
+    <script>
+        const socket = io();
+        new Vue({
+            el: '#app',
+            data: {
+                argument: '',
+                response: null,
+                isLoading: false,
+                isStreaming: false,
+                error: null,
+                success: true,
+                _argument: '',
+                message: ''
+            },
+            computed: {
+
+            },
+            mounted() {
+                this.setInputValueFromUrl();
+                // Setting up Socket.IO event listeners
+                socket.on('connect', () => {
+                    // console.log('Connected to the server.');
+                });
+
+                const input = document.querySelector('#txtPrompt');
+                input.addEventListener('keyup', (event) => {
+                    if (event.key === 'Enter') {
+                        this.handleEnterPress();
+                    }
+                });
+
+
+                const noCopyDiv = this.$refs.resultDiv;
+
+                // Disable right-click
+                noCopyDiv.addEventListener('contextmenu', (event) => {
+                    event.preventDefault();
+                });
+
+                // Disable copy using keyboard shortcuts
+                noCopyDiv.addEventListener('keydown', (event) => {
+                    if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
+                        event.preventDefault();
+                    }
+                });
+
+                // Disable copy event (including using the browser menu)
+                noCopyDiv.addEventListener('copy', (event) => {
+                    event.preventDefault();
+                });
+
+
+                socket.on('query_response', (response) => {
+                    this.isLoading = false;
+                    this.isStreaming = true;
+                    if (response.success == false) {
+                        this.success = false;
+                        this.error = response.error;
+                        this.isStreaming = false;
+                        response.is_last_message = true;
+                    }
+                    // console.log('Received response:', response);
+
+                    if (response.is_last_message) {
+                        this.isStreaming = false;
+                    }
+                    else {
+                        if (response.content != null && response.content != undefined) {
+                            this.message += response.content;
+                            this.response = response;
+                        }
+
+
+                    }
+
+
+
+                });
+
+                socket.on('disconnect', () => {
+                    // console.log('Disconnected from the server.');
+                });
+            },
+            methods: {
+                socketResponse() {
+                    this.error = null;
+                    this._argument = this.argument
+                    socket.emit('send_query', { query: this.argument });
+                    this.argument = ''; // Reset query input
+                    this.message = '';
+                    this.response = false;
+                    this.isLoading = true;
+                    this.isStreaming = true;
+                    gtag("event", "generate_response", {
+                        "event_category": "engagement",
+                        "event_label": "generate_response",
+                        'value': this._argument
+                    });
+
+
+
+                },
+                handleEnterPress() {
+                    // Only trigger the button click if it is not disabled
+                    if (!this.isLoading && !this.isStreaming) {
+                        this.socketResponse();
+                    }
+                },
+                copyToClipboard() {
+                    const inputElement = document.createElement('input');
+                    inputElement.value = this.message;
+                    document.body.appendChild(inputElement);
+                    inputElement.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(inputElement);
+                    socket.emit('copy_answer', { query: this._argument });
+
+                    gtag("event", "copy_text_answer", {
+                        "event_category": "engagement",
+                        "event_label": "copy_text_answer",
+                        'value': this._argument
+                    });
+
+                },
+                setInputValueFromUrl() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.has('query')) {
+                        this.argument = urlParams.get('query');
+
+                        this.socketResponse();
+                    }
+                }
+            }
+        })
+
+
+        // this.response = "This is a static response. Replace with API call.";
+
+    </script>
+</body>
+
+</html>
