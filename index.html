@@ -16,7 +16,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HE9PB7G54S"></script>
     <link href="https://fonts.cdnfonts.com/css/inter" rel="stylesheet">
     <link href="https://fonts.cdnfonts.com/css/source-sans-pro" rel="stylesheet">
-                
+
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script>
@@ -28,7 +28,8 @@
     </script>
     <style>
         html * {
-            font-family: Arial !important;
+            font-family: Source Sans Pro;
+            color: black
         }
 
         .button.is-primary,
@@ -95,26 +96,40 @@
 </head>
 
 <body>
-    <div id="app" class="container">
-        <div class="mt-5 text-5xl font-bold font-[sans-pro]">
+    <div id="app" class="p-3 flex flex-col items-center ">
+        <div class="mt-5 text-6xl font-semibold">
             Argument
         </div>
-        <div>
-            Harness the power of AI to defend Israel online
-            with powerful replies
+        <div class="font-light text-[#253540] mt-5 text-2xl text-center">
+            <div>
+                Harness the power of AI to defend
+                <span class="font-bold text-[#1D68C0]">Israel</span>
+                online
+            </div>
+
+            <div>
+                with powerful replies
+            </div>
         </div>
-        <div>
+
+        <div class="font-[Inter] font-semibold mt-16 text-lg">
             Enter an anti-Israel argument below
         </div>
-        <div class="input-group">
-            <input class="input is-primary is-large is-focused" id="txtPrompt" type="text" v-model="argument"
-                placeholder="Enter your argument">
 
+        <div class="w-full max-w-2xl relative mt-5">
 
+            <textarea rows="4" id="txtPrompt" v-model="argument"
+                class="resize-none absolute z-50 block p-2.5 w-full text-sm text-gray-900 bg-[#FAEEF1] rounded-lg shadow-lg outline-0"></textarea>
+            <img class="absolute right-0 top-[-110px] w-[200px] z-0" src="./input_image.png">
         </div>
-        <br />
-        <button class="button is-primary is-fullwidth is-large" :disabled="isLoading || isStreaming"
-            @click="socketResponse">Generate Reponse</button>
+
+        <div class="mt-32">
+            <button type="button" :disabled="isLoading || isStreaming" @click="socketResponse"
+                class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none font-medium text-xl px-6 py-4 mt-5">Generate
+                Response
+            </button>
+        </div>
+
         <!-- <div v-if="isLoading" class="busy-indicator"><img src="https://uploads.superbot.works/site-static/files/shares/supbot.gif"/></div> -->
         <progress v-if="isLoading" class="progress is-large is-info" max="100">60%</progress>
         <!-- <div v-if="isLoading" class="busy-indicator"><img src="https://mir-s3-cdn-cf.behance.net/project_modules/disp/585d0331234507.564a1d239ac5e.gif"/></div> -->
@@ -123,14 +138,10 @@
         <br />
         <br />
         <div v-if='!success' class="notification is-warning">
-
             {{error}}
         </div>
         <div ref='resultDiv'>
             <div v-if="response" class="response">
-
-
-
                 <div v-if="!isLoading" class="card">
                     <div class="card-content">
                         <p class="title">
