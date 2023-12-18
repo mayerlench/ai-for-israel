@@ -293,31 +293,15 @@
         const socket = io();
         new Vue({
             el: '#app',
-            // data: {
-            //     argument: '',
-            //     response: null,
-            //     isLoading: false,
-            //     isStreaming: false,
-            //     error: null,
-            //     success: true,
-            //     _argument: '',
-            //     message: ''
-            // },
             data: {
-                argument: 'This is a test argument',
-                response: {
-                    content: '',
-                    metadata: {
-                        link: ''
-                    }
-
-                },
+                argument: '',
+                response: null,
                 isLoading: false,
                 isStreaming: false,
                 error: null,
                 success: true,
-                _argument: 'This is a test argument',
-                message: 'asdasdasd'
+                _argument: '',
+                message: ''
             },
             computed: {
 
