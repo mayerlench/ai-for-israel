@@ -97,11 +97,11 @@
 </head>
 
 <body>
-    <div id="app" class="p-3 flex flex-col items-center ">
-        <div class="mt-5 text-6xl font-semibold">
+    <div id="app" class="p-3 flex flex-col items-center container">
+        <div class="mt-5 text-6xl font-semibold max-sm:text-4xl">
             Argument
         </div>
-        <div class="font-light text-[#253540] mt-5 text-2xl text-center">
+        <div class="font-light text-[#253540] mt-5 text-2xl text-center max-sm:text-sm">
             <div>
                 Harness the power of AI to defend
                 <span class="font-bold text-[#1D68C0]">Israel</span>
@@ -113,15 +113,15 @@
             </div>
         </div>
 
-        <div class="font-[Inter] font-semibold mt-16 text-lg">
+        <div class="font-[Inter] font-semibold mt-16 text-lg max-sm:text-xs max-sm:mt-6">
             Enter an anti-Israel argument below
         </div>
 
-        <div class="w-full md:max-w-2xl relative mt-5">
+        <div class="w-full md:max-w-2xl relative sm:mt-5 flex justify-center max-sm:mt-20">
 
             <textarea rows="4" id="txtPrompt" v-model="argument"
                 class="resize-none absolute z-50 block p-2.5 w-full text-sm text-gray-900 bg-[#FAEEF1] rounded-lg shadow-lg outline-0"></textarea>
-            <img class="absolute right-0 top-[-110px] w-[200px] z-0" src="./assets/image-1.png">
+            <img class="absolute sm:right-0 top-[-110px] w-[200px] z-0 max-sm:top-[-90px]" src="./assets/image-1.png">
         </div>
 
         <div class="mt-32">
@@ -286,7 +286,6 @@
                     class="link">{{ response.metadata.link }}</a>
             </div>
         </div>
-
 
     </div>
     <script>
