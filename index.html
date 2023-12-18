@@ -249,25 +249,6 @@
                             </a>
                         </div>
                     </div>
-
-                    <div class="card-content">
-                        <p class="title">
-                            The anti-israeli argument you provided:
-                        </p>
-                        <p class="content">{{ _argument }}</p>
-                        <br />
-                        <p class="title">
-                            How you should answer:
-                        </p>
-                        <div class="content">
-                            {{ message}}
-                            <br />
-
-                        </div>
-                        <footer class="card-footer" v-if="!isStreaming">
-                            <a href="#" @click="copyToClipboard" class="card-footer-item">Copy</a>
-                        </footer>
-                    </div>
                 </div>
 
                 <div v-if="response.metadata.link && !isLoading" class="card">
